@@ -1,0 +1,159 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <cmath>
+
+/*
+  --- Day 2: Red-Nosed Reports ---
+
+Fortunately, the first location The Historians want to search isn't a long walk from the Chief Historian's office.
+
+While the Red-Nosed Reindeer nuclear fusion/fission plant appears to contain no sign of the Chief Historian, the engineers 
+there run up to you as soon as they see you. 
+
+
+
+Apparently, they still talk about the time Rudolph was saved through molecular synthesis from a single electron.
+They're quick to add that - since you're already here - they'd really appreciate your help analyzing some unusual 
+data from the Red-Nosed reactor. 
+
+
+You turn to check if The Historians are waiting for you, but they seem to have already divided into groups 
+that are currently searching every corner of the facility. You offer to help with the unusual data.
+
+
+
+
+The unusual data (your puzzle input) consists of many reports, one report per line. 
+Each report is a list of numbers called levels that are separated by spaces. For example:
+
+7 6 4 2 1
+1 2 7 8 9
+9 7 6 2 1
+1 3 2 4 5
+8 6 4 4 1
+1 3 6 7 9
+
+This example data contains six reports each containing five levels.
+
+The engineers are trying to figure out which reports are safe. 
+The Red-Nosed reactor safety systems can only tolerate levels that are either gradually increasing or gradually decreasing.
+
+
+
+
+So, a report only counts as safe if both of the following are true:
+
+    The levels are either all increasing or all decreasing.
+    Any two adjacent levels differ by at least one and at most three.
+
+In the example above, the reports can be found safe or unsafe by checking those rules:
+
+    7 6 4 2 1: Safe because the levels are all decreasing by 1 or 2.
+    1 2 7 8 9: Unsafe because 2 7 is an increase of 5.
+    9 7 6 2 1: Unsafe because 6 2 is a decrease of 4.
+    1 3 2 4 5: Unsafe because 1 3 is increasing but 3 2 is decreasing.
+    8 6 4 4 1: Unsafe because 4 4 is neither an increase or a decrease.
+    1 3 6 7 9: Safe because the levels are all increasing by 1, 2, or 3.
+
+So, in this example, 2 reports are safe.
+
+Analyze the unusual data from the engineers. How many reports are safe?
+
+*/
+int main() {
+
+  std::ifstream file("input.txt");
+
+  if(!file.is_open()) {
+    return 1;
+  }
+
+  std::string line = "";
+  int num = 0;
+
+  std::vector<std::vector<int>> reports;
+  while(std::getline(file, line)) {
+    std::stringstream ss(line);
+    std::vector<int> report;
+    while(ss >> num) {
+      report.emplace_back(num);
+    }
+    reports.emplace_back(report);
+  }
+
+
+  file.close();
+
+  int num_of_safe_reports = 0;
+  for(int i = 0; i < reports.size(); i++) {
+    bool is_increasing = false;
+    bool is_decreasing = false;
+    bool safe = true;
+    for(int j = 0; j < reports[i].size() - 1; j++) {
+      int cur = reports[i][j];
+      int next = reports[i][j+1];
+      int diff = next - cur;
+      
+      if(diff > 0 && diff <= 3) {
+        is_increasing = true;
+      } else {
+        safe = false;
+      }
+      if (diff < 0 && diff >= -3) {
+        is_decreasing = true;
+      } else {
+        safe = false;
+      }
+
+      if(is_decreasing && is_increasing) {
+        safe = false;
+        break; // Early termination if both trends are detected
+      }
+    } 
+
+    // Corrected Conditional Logic with Clear Output Messages
+    if(is_increasing && is_decreasing) {
+      std::cout << "Report " << i+1 << " is not a safe report.\n";
+      safe = false;
+      continue;
+    }
+    if(safe) {
+      num_of_safe_reports += 1;
+    }
+    else {
+      std::cout << "Report " << i+1 << " is not a safe report.\n";
+    }
+  }
+  
+
+  std::cout << "num of safe reports: " << num_of_safe_reports << "\n";
+
+  
+  
+  return 0;
+}
+
+
+/*
+
+## observations
+
+- the elfs need help analyzing a report.
+- each row is a report.
+- each level is a column (and each is delmited by a whitespace)
+- need to check if each report is gradually increasing or decreasing
+- each adjacent levels are differ only by at least 1 or 3
+
+
+
+## approaches
+
+- it seems we can just iterate the reports and see if during the processing the rules check out.
+- we can keep track of how many reports are valid
+- the input looks like strings
+
+
+
+*/
